@@ -1,5 +1,9 @@
 # Hyperparameter sweep with nevergrad
 
+num_gpus: 1
+machine_rank: 0
+num_machines: 1
+
 data:
   data_root: /checkpoint/sramakri/datasets/Ego4D/MiniSets-1-to-6/clips
   annot_root: /checkpoint/sramakri/datasets/Ego4D/MiniSets-1-to-6/vq_splits
@@ -12,6 +16,7 @@ data:
   debug_mode: False
   debug_count: 5
   rcnn_batch_size: 8
+  num_workers: 4
 
 retrieval:
   rotate_crop: True
@@ -52,4 +57,3 @@ tracker:
   keep_track_tracker:
     debug: False
     model_path: "keep_track.pth.tar"
-

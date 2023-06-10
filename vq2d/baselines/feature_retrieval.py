@@ -13,6 +13,7 @@ from .utils import extract_window_with_context
 import re
 regex = re.compile('[^a-zA-Z ]')
 
+
 def perform_retrieval(
     clip_frames: Sequence[np.ndarray],
     visual_crop: Dict[str, Any],
@@ -62,11 +63,11 @@ def perform_retrieval(
         print('title', title)
     # Define search window
     search_window = list(range(0, query_frame))
-    ## Pick recent k% of frames
+    # Pick recent k% of frames
     window_size = int(round(len(search_window) * recency_factor))
     if len(search_window[-window_size:]) > 0:
         search_window = search_window[-window_size:]
-    ## Subsample only k% of frames
+    # Subsample only k% of frames
     window_size = len(search_window)
     idxs_to_sample = np.linspace(
         0, window_size - 1, int(subsampling_factor * window_size)

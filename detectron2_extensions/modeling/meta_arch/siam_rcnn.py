@@ -130,8 +130,9 @@ class SiameseRCNN(GeneralizedRCNN):
         else:
             assert "proposals" in batched_inputs[0]
             proposals = [x["proposals"].to(self.device) for x in batched_inputs]
-
+        # import pdb; pdb.set_trace()
         results = self.roi_heads(images, features, proposals, ref_features, None)
+        # import pdb; pdb.set_trace()
 
         if do_postprocess:
             assert (

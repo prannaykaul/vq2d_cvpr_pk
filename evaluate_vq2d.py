@@ -302,8 +302,8 @@ def evaluate_vq_parallel(annotations, cfg):
 @hydra.main(config_path="vq2d", config_name="config")
 def main(cfg: DictConfig) -> None:
     # Load annotations
-    annot_path = osp.join(cfg.data.annot_root, f"{cfg.data.split}_annot.json.gz")
-    with gzip.open(annot_path, "rt") as fp:
+    annot_path = osp.join(cfg.data.annot_root, f"{cfg.data.split}_annot.json")
+    with open(annot_path, "r") as fp:
         annotations = json.load(fp)
 
     # evaluation for a part of video

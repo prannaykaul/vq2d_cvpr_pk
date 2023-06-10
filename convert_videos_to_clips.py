@@ -10,6 +10,10 @@ import imageio
 import pims
 import tqdm
 from vq2d.baselines import get_clip_name_from_clip_uid
+import resource
+
+low, high = resource.getrlimit(resource.RLIMIT_NOFILE)
+resource.setrlimit(resource.RLIMIT_NOFILE, (high, high))
 
 
 def read_video_md(path):
@@ -64,6 +68,7 @@ def extract_clip(video_path, clip_data, save_root):
     clip_uid = clip_data["clip_uid"]
     clip_save_path = os.path.join(save_root, get_clip_name_from_clip_uid(clip_uid))
     if os.path.isfile(clip_save_path):
+        print(f"Clip {clip_uid} already exists")
         return None
     # Select frames for clip
     clip_fps = int(clip_data["clip_fps"])

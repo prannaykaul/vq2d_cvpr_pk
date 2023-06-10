@@ -3,7 +3,7 @@ from .dataset import (
     register_visual_query_datasets,
 )
 from .feature_retrieval import perform_retrieval
-from .predictor import SiamPredictor
+from .predictor import SiamPredictor, SiamPredictorPK
 from .utils import (
     create_similarity_network,
     convert_annot_to_bbox,

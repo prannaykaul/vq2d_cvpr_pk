@@ -7,7 +7,8 @@ import torchvision.models as tmodels
 from einops import rearrange
 
 import os
-import imageio,pims
+import imageio, pims
+import imageio
 import multiprocessing as mp
 
 Numeric = Union[int, float]
@@ -114,6 +115,7 @@ def extract_window_with_context(
     )
 
     return window
+
 
 def extract_square_with_context(
     image: torch.Tensor,

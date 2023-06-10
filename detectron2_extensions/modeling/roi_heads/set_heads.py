@@ -367,14 +367,15 @@ class RefSetTransHead(nn.Module):
         """
         # print("inputs sizes are", len(x), x[0].shape, len(y), y[0].shape)
         # inputs sizes are 8 torch.Size([512, 256, 14, 14]) 8 torch.Size([1, 256, 14, 14])
+        # import pdb; pdb.set_trace()
         B = len(x)
         N_input = x[0].shape[0]
         if self.n_token > 0: # less token if defined
-            x = [i[:self.n_token,...] for i in x]
+            x = [i[:self.n_token,...] for i in x]  # this step reduces the number of proposal features per thing to 128 from 1000
         N = x[0].shape[0]
         x_ = torch.cat(x)
         y_ = torch.cat(y)
-        if self.use_shared_projection:
+        if self.use_shared_projection:  # projector is shared
             xp = self.projector(x_)  # BNxH
             yp = self.projector(y_)  # BxH
         else:
@@ -387,7 +388,7 @@ class RefSetTransHead(nn.Module):
 
         # apply transformers based on settings
         if self.compare_type == "bilinear": # bilinear proposals and references
-            feature = self.compare(xp, yp.expand(-1,N, -1).contiguous()) 
+            feature = self.compare(xp, yp.expand(-1,N, -1).contiguous())  # features and references are combined here
             if self.set_trans_type == "isab":
                 globe_emb = self.globe(torch.zeros((B,1),device=feature.device).long())
                 output = self.set_trans(globe_emb,feature)
@@ -554,6 +555,7 @@ class RefSetTransHead(nn.Module):
         Returns:
             outputs are processed versions of inputs
         """
+        # import pdb; pdb.set_trace()
         boxes = [x.proposal_boxes.tensor for x in proposals]
         # remove global token if there is 
         if self.set_trans_type == "mab_global" or self.set_trans_type == 'isab':
@@ -664,6 +666,7 @@ class SetTransROIHeads(ROIHeads):
     ) -> Dict[str, Any]:
         # fmt: off
         in_features          = cfg.MODEL.ROI_SIAMESE_HEAD.IN_FEATURES
+        print(in_features)
         q_feature            = cfg.MODEL.ROI_SIAMESE_HEAD.QUERY_FEATURE
         pooler_resolution    = cfg.MODEL.ROI_SIAMESE_HEAD.POOLER_RESOLUTION
         pooler_scales        = tuple(1.0 / input_shape[k].stride for k in in_features)
@@ -782,6 +785,7 @@ class SetTransROIHeads(ROIHeads):
         proposals: List[Instances],
         return_top_feature: bool=False,
     ):
+        # import pdb; pdb.set_trace()
         """
         Forward logic of the siam prediction branch. If `self.train_on_pred_boxes is True`,
             the function puts predicted boxes in the `proposal_boxes` field of `proposals` argument.
@@ -797,11 +801,11 @@ class SetTransROIHeads(ROIHeads):
             In training, a dict of losses.
             In inference, a list of NxM similarity scores to each proposal.
         """
-        features = [features[f] for f in self.siam_in_features]
-        ref_features = ref_features[self.siam_q_feature]  # (N, R, *)
+        features = [features[f] for f in self.siam_in_features]  # Only uses p3 for some reason
+        ref_features = ref_features[self.siam_q_feature]  # (N, R, *)  # Uses feature from p3
         siam_features = self.siam_pooler(
             features, [x.proposal_boxes for x in proposals]
-        )
+        )  # (N, 256, 14, 14)
         # siam_features contains (M, C, H, W) tensor combining all images and proposals.
         # these need to be split into batches for siam_head.
         siam_features_joint = siam_features
@@ -815,8 +819,8 @@ class SetTransROIHeads(ROIHeads):
         # Pool ref_features
         N, R = ref_features.shape[:2]
         ref_features = ref_features.view(-1, *ref_features.shape[2:])
-        ref_features = self.ref_pooler(ref_features)
-        ref_features = ref_features.view(N, R, *ref_features.shape[1:])
+        ref_features = self.ref_pooler(ref_features)  # Adaptive Average Pooling
+        ref_features = ref_features.view(N, R, *ref_features.shape[1:])  # (N, R, 256, 14, 14)
         # ref_features contains (N, R, C, H, W) tensor with one reference per batch
         # multiple rotations of the same reference may be provided (R)
         # these need to be split into list of batch elements for siam_head

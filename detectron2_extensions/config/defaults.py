@@ -17,6 +17,7 @@ _C.INPUT.ROTATION_EXPAND = True
 _C.INPUT.ENABLE_RANDOM_ROTATION = False
 _C.INPUT.TRANSFORM_VISUAL_CROP = False
 _C.INPUT.ENABLE_RANDOM_ROTATION_VISUAL_CROP = False
+_C.INPUT.RESIZE_SCALE = "null"
 # Visual crop generation
 _C.INPUT.REFERENCE_CONTEXT_PAD = 16  # Pixel padding around visual crop
 _C.INPUT.REFERENCE_SIZE = 256  # Visual crop size after padding
